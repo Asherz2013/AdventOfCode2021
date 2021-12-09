@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <vector>
 using namespace std;
 
 int main()
@@ -18,28 +19,54 @@ int main()
 
     int numIncrements = 0;
 
+    vector<int> numbers;
+
     if (myfile.is_open())
     {
         string tp;
         while (getline(myfile, tp))
         {
-            num = stoi(tp);
-
-            if (prevNum > -1)
-            {
-                if (num > prevNum)
-                {
-                    numIncrements++;
-                }
-            }
-
-            prevNum = num;
+            numbers.push_back(stoi(tp));
         }
         myfile.close();   //close the file object.
-
-        cout << "Number of Increments: " << numIncrements;
     }
     else cout << "Unable to open file";
+
+    if (!numbers.empty())
+    {
+        // Find the first 3 numbers
+        for (int iter = 0; iter < 3; iter++)
+        {
+            num += numbers[iter];
+        }
+
+        int oldIndex = 0;
+        // Loop through from 3
+        for (int newIndex=3; newIndex < numbers.size(); newIndex++)
+        {
+            // To get the new value, we can ake the current value, add the new index, and remove the "first" index
+            /*
+            1   A
+            2   A   B
+            3   A   B   C
+            4       B   C   D
+            5           C   D
+            6               D
+            */
+            int newValue = num + numbers[newIndex] - numbers[oldIndex];
+            if (newValue > num)
+            {
+                numIncrements++;
+            }
+            oldIndex++;
+        }
+
+        cout << "Increments: " << numIncrements;
+    }
+    else
+    {
+        cout << "Array was empty??";
+    }
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
