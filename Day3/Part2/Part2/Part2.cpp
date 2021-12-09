@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <bitset>
+#include <array>
 using namespace std;
 
 int main()
@@ -18,7 +19,7 @@ int main()
 
     ifstream myfile;
     myfile.open("D:/GitHub/AdventOfCode2021/Day3/input.txt", ios::in);
-    
+
     // Grab all the data (this will be in STRING form
     if (myfile.is_open())
     {
@@ -31,32 +32,51 @@ int main()
         myfile.close();   //close the file object.
 
     }
-    else cout << "Unable to open file";
+    else
+    {
+        cout << "Unable to open file";
+        return 1;
+    }
 
     // Gamme and Epsilon need to also be the same size
-    bitset<bits> gammaRate;
-    bitset<bits> epsilonRate;
+    bitset<bits> oxygen_generator;
+    bitset<bits> co2_scrubber;
 
+    vector<bitset<bits>> most_common(reports);
     // Bitset stores the bits in the opposite way to the text file, so need to work backwards
-    for (int i = bits - 1; i >= 0; i--)
+    for (size_t i = bits - 1; most_common.size() > 1 && i >= 0; i--)
     {
-        // Array to hold how many 0's and 1's there are
-        int counts[2] { 0,0 };
+        array<vector<bitset<bits>>, 2> filtered;
         // Go through all the reports
-        for (auto report : reports)
+        for (auto report : most_common)
         {
-            // Incremement either Counts index 0 or index 1 based on the BIT we are currently looking at.
-            counts[report[i]]++;
+            filtered[report[i]].push_back(report);
         }
-        // Gamma uses the MOST common BIT
-        gammaRate[i] = counts[0] > counts[1] ? 0 : 1;
+        // The MOST common BIT goes towards Oxygen
+        most_common = filtered[0].size() > filtered[1].size() ? filtered[0] : filtered[1];
     }
-    // Since the Epsilon Rate use Least Common BIT, we can just flip the gamma
-    epsilonRate = bitset<bits>(gammaRate).flip();
+    oxygen_generator = most_common.at(0);
 
-    cout << "Gamma Rate: " << gammaRate.to_ulong() << endl;
-    cout << "Epsilon Rate: " << epsilonRate.to_ulong() << endl;
-    cout << "Power consuption: " << gammaRate.to_ulong() * epsilonRate.to_ulong()  << endl;
+    vector<bitset<bits>> least_common(reports);
+    // Bitset stores the bits in the opposite way to the text file, so need to work backwards
+    for (size_t i = bits - 1; least_common.size() > 1 && i >= 0; i--)
+    {
+        array<vector<bitset<bits>>, 2> filtered;
+        // Go through all the reports
+        for (auto report : least_common)
+        {
+            filtered[report[i]].push_back(report);
+        }
+        // The MOST common BIT goes towards Oxygen
+        least_common = filtered[0].size() > filtered[1].size() ? filtered[1] : filtered[0];
+    }
+    co2_scrubber = least_common.at(0);
+
+    cout << "Oxygen: " << oxygen_generator.to_ulong() << endl;
+    cout << "C02: " << co2_scrubber.to_ulong() << endl;
+    cout << "Power consuption: " << oxygen_generator.to_ulong() * co2_scrubber.to_ulong() << endl;
+
+    return 0;
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
